@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+*.local
+*.log
+.DS_Store
+.vite/
+
+# 浏览器验收时产生的临时会话与截图
+.playwright-cli/
+*.pw.png

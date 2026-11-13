@@ -1,0 +1,38 @@
+{
+  "name": "mini-post-vue",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "心情日记 · Vue 3 + Pinia + TypeScript 重写版（数据仅存 localStorage）",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "tsx watch server/index.ts",
+    "dev:all": "concurrently -n api,web -c cyan,green \"npm:dev:api\" \"npm:dev\"",
+    "start": "tsx server/index.ts",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run && vitest run --config vitest.server.config.ts",
+    "test:client": "vitest run",
+    "test:server": "vitest run --config vitest.server.config.ts",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.8",
+    "hono": "^4.13.18",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.45"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "@vue/test-utils": "^2.5.1",
+    "concurrently": "^10.0.7",
+    "jsdom": "^31.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0",
+    "vue-tsc": "^3.3.14"
+  }
+}

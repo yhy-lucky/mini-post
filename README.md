@@ -55,8 +55,11 @@ python -m http.server 5173
 .
 ├── .gitignore
 ├── README.md
-└── mini-post/
-    ├── index.html   # 页面骨架：顶部栏、今日概览、发布卡、时间线、城市弹层
-    ├── styles.css   # 样式：双主题设计变量、概览与天气、心情标签、时间线与动效、响应式
-    └── app.js       # 逻辑：存储与迁移、主题、天气与城市、时钟统计、发布与点赞、分组渲染
+├── mini-post/          # 原版：纯 HTML + CSS + JS，无框架、无构建
+│   ├── index.html      # 页面骨架：顶部栏、今日概览、发布卡、时间线、城市弹层
+│   ├── styles.css      # 样式：双主题设计变量、概览与天气、心情标签、时间线与动效、响应式
+│   └── app.js          # 逻辑：存储与迁移、主题、天气与城市、时钟统计、发布与点赞、分组渲染
+└── mini-post-vue/      # Vue 重写版：Vite + Vue 3 + TypeScript + Pinia + Vitest（TDD）
 ```
+
+> Vue 版功能与视觉与 `mini-post/` 一致，但数据不再存于浏览器：改由同目录的 Hono 内存后端通过 RESTful `/api/*` 提供，详见 [`mini-post-vue/README.md`](mini-post-vue/README.md)。

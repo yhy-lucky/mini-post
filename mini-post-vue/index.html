@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F5F6FB">
+  <meta name="description" content="心情日记 —— 记录每天的心情、天气与小事，内容同步保存在服务端">
+  <link
+    rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23818CF8'/%3E%3Cpath d='M8 13.2c1.2 1.6 2.6 2.4 4 2.4s2.8-.8 4-2.4' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='9' cy='9.2' r='1.1' fill='%23fff'/%3E%3Ccircle cx='15' cy='9.2' r='1.1' fill='%23fff'/%3E%3C/svg%3E"
+  >
+  <title>心情日记 · 把今天的心情留在这里</title>
+  <script>
+    /*
+     * 首屏防闪白：主题现在存在服务端，加载完成前无法得知用户选择，
+     * 因此这里只用系统偏好上色；settings store 初始化后会立即覆盖为持久化主题。
+     */
+    (function () {
+      try {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      } catch (err) {
+        /* 忽略：样式与脚本仍可正常降级 */
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
