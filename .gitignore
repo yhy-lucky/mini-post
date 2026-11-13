@@ -11,3 +11,7 @@ desktop.ini
 # 日志与依赖（本项目无依赖，预留）
 *.log
 node_modules/
+
+# AI 工具生成的本地文件
+.agents/
+skills-lock.json

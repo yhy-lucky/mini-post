@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#F5F6FB">
-  <meta name="description" content="微记 —— 一个只保存在本机的轻量动态记录工具">
-  <title>微记 · 记录此刻的一点点想法</title>
+  <meta name="description" content="心情日记 —— 记录每天的心情、天气与小事，内容只保存在本机">
+  <title>心情日记 · 把今天的心情留在这里</title>
+  <script>
+    (function () {
+      try {
+        var raw = window.localStorage.getItem('mooddiary.settings.v1');
+        var theme = raw ? JSON.parse(raw).theme : 'system';
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (err) {
+        /* 忽略：样式与脚本仍可正常降级 */
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,83 +27,197 @@
     <span class="blob blob--one"></span>
     <span class="blob blob--two"></span>
     <span class="blob blob--three"></span>
+    <span class="blob blob--four"></span>
   </div>
 
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
         <span class="brand-logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8L12 3.5z"/>
-            <path d="M18 16.5l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8.8-2.1z"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 4h9.5A2.5 2.5 0 0 1 18 6.5V20l-3-1.6L12 20l-3-1.6L6 20V4z"/>
+            <path d="M9.2 11.2c.8-1.1 2.4-1.1 2.8.2.4-1.3 2-1.3 2.8-.2.7 1-.3 2.3-2.8 3.6-2.5-1.3-3.5-2.6-2.8-3.6z"/>
           </svg>
         </span>
         <div class="brand-text">
-          <h1 class="brand-name">微记</h1>
-          <p class="brand-sub">记录此刻的一点点想法</p>
+          <h1 class="brand-name">心情日记</h1>
+          <p class="brand-sub">把今天的心情，安静地留在这里</p>
         </div>
       </div>
-      <span class="local-badge">
-        <span class="local-dot" aria-hidden="true"></span>
-        仅保存在本机
-      </span>
+
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="切换深色主题" aria-pressed="false">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+          </svg>
+        </button>
+        <span class="local-badge">
+          <span class="local-dot" aria-hidden="true"></span>
+          仅保存在本机
+        </span>
+      </div>
     </div>
   </header>
 
   <main class="page">
-    <section class="card composer" id="composer-card" aria-label="发布动态">
+    <section class="hero card" aria-label="今日概览">
+      <div class="hero-main">
+        <p class="hero-greeting" id="greeting">你好呀</p>
+        <div class="hero-date-row">
+          <span class="hero-day" id="hero-day">1</span>
+          <div class="hero-date-meta">
+            <span class="hero-month" id="hero-month">2026 年 1 月</span>
+            <span class="hero-weekday" id="hero-weekday">星期一</span>
+          </div>
+        </div>
+        <p class="hero-clock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7.5V12l3 1.8"/>
+          </svg>
+          <span id="clock">00:00:00</span>
+        </p>
+      </div>
+
+      <div class="hero-weather">
+        <button type="button" class="weather-card is-loading" id="weather-card" aria-haspopup="dialog" aria-label="查看天气或更换城市">
+          <span class="weather-glyph" id="weather-icon" aria-hidden="true"></span>
+          <span class="weather-body">
+            <span class="weather-temp" id="weather-temp">--°</span>
+            <span class="weather-desc" id="weather-desc">正在获取天气</span>
+          </span>
+          <span class="weather-meta" id="weather-extra">体感 --° · 湿度 --%</span>
+          <span class="weather-city">
+            <span id="weather-city-name">定位中…</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </span>
+        </button>
+        <p class="weather-hint" id="weather-hint" hidden>
+          <span id="weather-hint-text">天气暂不可用</span>，<button type="button" id="weather-retry">重试</button>
+        </p>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-value" id="stat-month">0</span>
+            <span class="stat-label">本月记录</span>
+          </div>
+          <span class="stat-divider" aria-hidden="true"></span>
+          <div class="stat">
+            <span class="stat-value" id="stat-streak">0</span>
+            <span class="stat-label">连续天数</span>
+          </div>
+          <span class="stat-divider" aria-hidden="true"></span>
+          <div class="stat">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">累计记录</span>
+          </div>
+        </div>
+        <div class="mood-dist-wrap">
+          <span class="mood-dist-label">本月心情</span>
+          <div class="mood-dist" id="mood-dist"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card composer" id="composer-card" aria-label="记录今天的心情">
       <form id="composer" class="composer-form" novalidate>
-        <label class="sr-only" for="composer-input">写下此刻的想法</label>
+        <div class="composer-head">
+          <span class="composer-title">今天的心情</span>
+          <span class="mood-current" id="mood-current">平静</span>
+        </div>
+
+        <div class="mood-picker" id="mood-picker" role="radiogroup" aria-label="选择心情"></div>
+
+        <div class="tag-row">
+          <span class="tag-label">主题</span>
+          <div class="tag-picker" id="tag-picker" role="group" aria-label="选择主题标签"></div>
+          <div class="tag-custom">
+            <label class="sr-only" for="tag-input">自定义主题</label>
+            <input class="tag-input" id="tag-input" type="text" maxlength="8" placeholder="自定义主题" autocomplete="off">
+            <button type="button" class="tag-add" id="tag-add">添加</button>
+          </div>
+        </div>
+
+        <label class="sr-only" for="composer-input">写下此刻的心情</label>
         <textarea
           id="composer-input"
           class="composer-input"
           rows="3"
-          placeholder="此刻在想些什么？写下来，它会留在这一台设备上。"
+          placeholder="今天发生了什么？此刻的心情是怎样的？"
           aria-describedby="char-counter"
         ></textarea>
 
-        <div class="composer-tools">
-          <span class="composer-hint">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="4" y="10" width="16" height="10" rx="2.5"/>
-              <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-            </svg>
-            本地保存 · Ctrl / ⌘ + Enter 快速发布
-          </span>
-
+        <div class="composer-footer">
+          <span class="composer-hint">仅保存在本机 · Ctrl / ⌘ + Enter 记录</span>
           <div class="composer-actions">
             <span class="counter" id="char-counter">还可输入 280 字</span>
-            <button type="submit" class="btn-primary" id="submit-btn" disabled>发布</button>
+            <button type="submit" class="btn-primary" id="submit-btn" disabled>记录心情</button>
           </div>
         </div>
       </form>
     </section>
 
-    <section class="timeline-section" aria-label="动态时间线">
+    <section class="timeline-section" aria-label="心情记录">
       <div class="timeline-head">
-        <h2 class="timeline-title">动态</h2>
-        <span class="post-count" id="post-count">0 条</span>
+        <h2 class="timeline-title">心情记录</h2>
+        <span class="post-count" id="post-count">共 0 条</span>
       </div>
 
-      <ul class="timeline" id="timeline" hidden></ul>
+      <div class="timeline" id="timeline" hidden></div>
 
       <div class="empty" id="empty-state">
         <span class="empty-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 14.5a2.5 2.5 0 0 1-2.5 2.5H9l-4 3.5V6.5A2.5 2.5 0 0 1 7.5 4h10A2.5 2.5 0 0 1 20 6.5v8z"/>
-            <path d="M8.5 8.5h7M8.5 12h4.5"/>
+            <path d="M6 4h9.5A2.5 2.5 0 0 1 18 6.5V20l-3-1.6L12 20l-3-1.6L6 20V4z"/>
+            <path d="M9 9h6M9 12.5h4"/>
           </svg>
         </span>
-        <p class="empty-title">这里还很安静</p>
-        <p class="empty-desc">写下第一条想法，它会第一时间出现在这里。</p>
-        <button type="button" class="btn-ghost" id="empty-action">开始记录</button>
+        <p class="empty-title">还没有写下今天的心情</p>
+        <p class="empty-desc">选一个心情，写几句话，这一天就会被温柔地记住。</p>
+        <button type="button" class="btn-ghost" id="empty-action">写下第一条</button>
       </div>
     </section>
   </main>
 
   <footer class="page-footer">
-    <p>所有内容都保存在这台设备的浏览器里，清理站点数据会一并清除。</p>
+    <p>所有记录都保存在这台设备的浏览器里，清理站点数据会一并清除。</p>
   </footer>
+
+  <dialog class="city-dialog" id="city-dialog" aria-labelledby="city-title">
+    <div class="dialog-head">
+      <h2 class="dialog-title" id="city-title">更换城市</h2>
+      <button type="button" class="icon-btn" id="city-close" aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="city-search">
+      <label class="sr-only" for="city-input">城市名称</label>
+      <input class="city-input" id="city-input" type="text" placeholder="输入城市名，例如：杭州" autocomplete="off">
+      <button type="button" class="btn-primary btn-sm" id="city-search-btn">搜索</button>
+    </div>
+
+    <p class="city-status" id="city-status">输入城市名搜索，或使用当前位置。</p>
+    <ul class="city-results" id="city-results"></ul>
+
+    <button type="button" class="btn-ghost city-locate" id="city-locate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2"/>
+        <path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21"/>
+      </svg>
+      使用我的当前位置
+    </button>
+  </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
